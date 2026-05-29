@@ -19,38 +19,34 @@ export default async function handler(req, res) {
   }
 
   try {
-    let apiUrl;
+    // L'API publique de Koumoul utilise cette URL
+    const baseUrl = 'https://opendata.koumoul.com/data-fair/api/v1/datasets/parcelles-des-personnes-morales/lines';
 
+    const params = new URLSearchParams({ size: '100' });
     if (siren) {
-      // Recherche exacte par SIREN
-      const params = new URLSearchParams({
-        'numero_siren_eq': siren,
-        size: '100',
-      });
-      apiUrl = `https://opendata.koumoul.com/api/v1/datasets/parcelles-des-personnes-morales/lines?${params}`;
+      params.set('numero_siren_eq', siren);
     } else {
-      // Recherche full-text par nom
-      const params = new URLSearchParams({
-        q: nom,
-        size: '100',
-      });
-      apiUrl = `https://opendata.koumoul.com/api/v1/datasets/parcelles-des-personnes-morales/lines?${params}`;
+      params.set('q', nom);
     }
+
+    const apiUrl = `${baseUrl}?${params}`;
 
     const response = await fetch(apiUrl, {
       headers: { Accept: 'application/json' },
     });
 
     if (!response.ok) {
+      const text = await response.text().catch(() => '');
       return res.status(response.status).json({
         error: `Erreur API Koumoul : ${response.status}`,
+        url: apiUrl,
+        details: text.substring(0, 500),
       });
     }
 
     const data = await response.json();
     const rows = data.results || [];
 
-    // Formatage des parcelles pour REDPAR
     const parcelles = rows.map((r) => ({
       codeParcelle: r.code_parcelle,
       commune: r.nom_commune || r['_infos_commune.nom_commune'],
