@@ -1,0 +1,12 @@
+{
+  "name": "redpar-backend",
+  "version": "1.0.0",
+  "description": "Backend proxy pour REDPAR - Cabinet Fidal Notaires",
+  "main": "api/search.js",
+  "scripts": {
+    "start": "node api/search.js"
+  },
+  "engines": {
+    "node": ">=18.x"
+  }
+}
