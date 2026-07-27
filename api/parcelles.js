@@ -18,6 +18,7 @@
 const F = require('./_fpmu');
 
 module.exports = async function handler(req, res) {
+  F.cors(res);
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'GET') return F.erreur(res, 405, 'Méthode non autorisée');
 
@@ -73,6 +74,10 @@ module.exports = async function handler(req, res) {
         nature_culture: r.nature_culture,
         millesime: F.MILLESIME,
       })),
+      // Forme historique attendue par le frontend REDPAR (App.jsx), servie en
+      // parallèle du contrat MARTEAU : les deux consommateurs coexistent.
+      parcelles: lignes.map(F.versFrontend),
+      truncated: !!tronque,
       agregats: F.agreger(lignes, true),
       millesime: F.MILLESIME,
       ...(resolution ? { resolution } : {}),
