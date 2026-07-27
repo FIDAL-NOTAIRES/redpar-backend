@@ -6,6 +6,7 @@
   "functions": {
     "api/parcelles.js": { "maxDuration": 60, "memory": 1024 },
     "api/locaux.js": { "maxDuration": 60, "memory": 1024 },
-    "api/annuaire.js": { "maxDuration": 30, "memory": 1024 }
+    "api/annuaire.js": { "maxDuration": 30, "memory": 1024 },
+    "api/geo.js": { "maxDuration": 60, "memory": 1024 }
   }
 }
