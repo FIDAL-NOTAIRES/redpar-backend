@@ -138,6 +138,10 @@ async function planCommune(insee) {
 }
 
 module.exports = async function handler(req, res) {
+  // Voir la note de api/_fpmu.js : sans en-têtes CORS, le navigateur bloque.
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(204).end();
   const json = (code, corps) => {
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
