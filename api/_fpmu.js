@@ -134,6 +134,189 @@ const DEPARTEMENTS = {
   '976': ['Mayotte', 'Mayotte'],
 };
 
+// Nomenclature des catégories juridiques de l'INSEE. Les fichiers DGFiP ne
+// portent que le CODE : 6540 plutôt que « Société civile immobilière ».
+// Cette table couvre les 123 codes présents dans la base au millésime 2025,
+// soit 99,96 % des enregistrements ; les autres retombent sur le niveau II
+// ci-dessous, qui est simplement les deux premiers chiffres du code — un
+// libellé reste donc toujours affiché, même pour un code inconnu ou futur.
+// Source : https://xml.insee.fr/schema/cj-enum.html, complétée des libellés
+// révisés publiés par l'INSEE (7344 Métropole, « Commune et commune
+// nouvelle », « Commune associée et commune déléguée »).
+const CJ_NIVEAU_III = {
+  '6540': "Société civile immobilière",
+  '7210': "Commune et commune nouvelle",
+  '4140': "Établissement public local à caractère industriel ou commercial",
+  '5599': "Autre SA à conseil d'administration",
+  '5546': "SA de HLM à conseil d'administration",
+  '5710': "Société par actions simplifiée (SAS)",
+  '9900': "Autre personne morale de droit privé",
+  '5699': "Société anonyme par actions simplifiées",
+  '6599': "Autre société civile",
+  '6534': "Groupement foncier agricole",
+  '5499': "Autre société à responsabilité limitée",
+  '7113': "Ministère",
+  '5515': "SA d'économie mixte à conseil d'administration",
+  '7220': "Département",
+  '9220': "Association déclarée",
+  '6536': "Groupement forestier",
+  '5646': "Société anonyme de HLM à directoire",
+  '4110': "Établissement public national à caractère industriel ou commercial doté d'un comptable public",
+  '7229': "(Autre) Collectivité territoriale",
+  '6597': "Société civile d'exploitation agricole",
+  '5560': "Autre SA coopérative à conseil d'administration",
+  '7346': "Communauté de communes",
+  '6598': "Exploitation agricole à responsabilité limitée",
+  '5202': "Société en nom collectif",
+  '7313': "Section de commune",
+  '5615': "SA d'économie mixte à directoire",
+  '7348': "Communauté d'agglomération",
+  '6533': "Groupement agricole d'exploitation en commun (GAEC)",
+  '7344': "Métropole",
+  '6541': "Société civile immobilière de construction vente",
+  '7389': "Établissement public national à caractère administratif",
+  '6538': "Groupement foncier rural",
+  '4120': "Établissement public national à caractère industriel ou commercial non doté d'un comptable public",
+  '7364': "Établissement d'hospitalisation",
+  '5547': "SA coopérative de production de HLM à conseil d'administration",
+  '7230': "Région",
+  '8130': "Institution de retraite complémentaire",
+  '7150': "Service du ministère de la Défense",
+  '9300': "Fondation",
+  '9110': "Syndicat de copropriété",
+  '7354': "Syndicat mixte communal",
+  '6521': "Société civile de placement collectif immobilier (SCPI)",
+  '6317': "Société coopérative agricole",
+  '7343': "Communauté urbaine",
+  '5510': "SA nationale à conseil d'administration",
+  '7355': "Autre syndicat mixte",
+  '9230': "Association déclarée reconnue d'utilité publique",
+  '7490': "Autre personne morale de droit administratif",
+  '5530': "Safer anonyme à conseil d'administration",
+  '7361': "Centre communal d'action sociale",
+  '7172': "Service déconcentré de l'État à compétence (inter) départementale",
+  '7323': "Association foncière de remembrement",
+  '3220': "Société étrangère non immatriculée au RCS",
+  '7353': "Syndicat intercommunal à vocation unique (SIVU)",
+  '5532': "Société anonyme mixte d'intérêt collectif agricole (SICA) à conseil d'administration",
+  '5308': "Société en commandite par actions",
+  '7171': "Service déconcentré de l'État à compétence (inter) régionale",
+  '7371': "Office public d'habitation à loyer modéré (OPHLM)",
+  '7345': "Syndicat intercommunal à vocation multiple (SIVOM)",
+  '7385': "Autre établissement public national administratif à compétence territoriale limitée",
+  '7366': "Établissement public local social et médico-social",
+  '9260': "Association de droit local",
+  '7381': "Organisme consulaire",
+  '7321': "Association syndicale autorisée",
+  '6596': "Caisse de crédit agricole mutuel",
+  '5195': "Association coopérative inscrite (droit local Alsace Moselle)",
+  '8210': "Mutuelle",
+  '3120': "Société étrangère immatriculée au RCS",
+  '7379': "(Autre) Établissement public administratif local",
+  '5520': "Société d'investissement à capital variable (SICAV) à conseil d'administration",
+  '3290': "(Autre) personne morale de droit étranger",
+  '7383': "Établissement public national à caractère scientifique culturel et professionnel",
+  '5460': "Autre SARL coopérative",
+  '6411': "Société d'assurance mutuelle",
+  '5660': "(Autre) SA coopérative à directoire",
+  '8110': "Régime général de la sécurité sociale",
+  '5306': "Société en commandite simple",
+  '9240': "Congrégation",
+  '7331': "Établissement public local d'enseignement",
+  '6542': "Société civile d'attribution",
+  '7372': "Service départemental d'incendie",
+  '6535': "Groupement agricole foncier",
+  '6220': "Groupement d'intérêt économique (GIE)",
+  '6539': "Société civile foncière",
+  '5485': "Société d'exercice libéral à responsabilité limitée",
+  '7356': "Commission syndicale pour la gestion des biens indivis des communes",
+  '5522': "Société anonyme immobilière pour le commerce et l'industrie (SICOMI) à conseil d'administration",
+  '8250': "Assurance mutuelle agricole",
+  '8310': "Comité central d'entreprise",
+  '6318': "Union de sociétés coopératives agricoles",
+  '4150': "Régie d'une collectivité locale à caractère industriel ou commercial",
+  '7120': "Service central d'un ministère",
+  '8120': "Régime spécial de sécurité sociale",
+  '9150': "Association syndicale libre",
+  '7179': "(Autre) Service déconcentré de l'État à compétence territoriale",
+  '5192': "Société coopérative de banque populaire",
+  '6316': "Coopérative d'utilisation de matériel agricole en commun (CUMA)",
+  '4160': "Institution Banque de France",
+  '7430': "Établissement public des cultes d'Alsace-Lorraine",
+  '5558': "SA coopérative ouvrière de production (SCOP) à conseil d'administration",
+  '5800': "Société européenne",
+  '7410': "Groupement d'intérêt public (GIP)",
+  '6595': "Caisse (locale) de crédit mutuel",
+  '8490': "Autre organisme professionnel",
+  '7312': "Commune associée et commune déléguée",
+  '5630': "Safer anonyme à directoire",
+  '5410': "SARL nationale",
+  '6560': "Autre société civile coopérative",
+  '5415': "SARL d'économie mixte",
+  '7384': "Autre établissement public national d'enseignement",
+  '6901': "Autres personnes de droit privé inscrites au registre du commerce et des sociétés",
+  '5196': "Caisse d'épargne et de prévoyance à forme coopérative",
+  '5651': "SA coopérative de consommation à directoire",
+  '3210': "État collectivité ou établissement public étranger",
+  '7351': "Institution interdépartementale ou entente",
+  '8140': "Mutualité sociale agricole",
+  '6589': "Société civile de moyens",
+  '6532': "Société civile d'intérêt collectif agricole (SICA)",
+  '7225': "Territoire d'Outre-Mer",
+  '8311': "Comité d'établissement",
+  '8450': "Ordre professionnel ou assimilé",
+  '8420': "Syndicat patronal",
+  '5458': "SARL coopérative ouvrière de production (SCOP)",
+};
+
+// Niveau II : repli, et garantie qu'aucun code ne reste sans libellé.
+const CJ_NIVEAU_II = {
+  '21': "Indivision",
+  '22': "Société créée de fait",
+  '23': "Société en participation",
+  '24': "Fiducie",
+  '27': "Paroisse hors zone concordataire",
+  '29': "Autre groupement de droit privé non doté de la personnalité morale",
+  '31': "Personne morale de droit étranger immatriculée au RCS",
+  '32': "Personne morale de droit étranger non immatriculée au RCS",
+  '41': "Établissement public ou régie à caractère industriel ou commercial",
+  '51': "Société coopérative commerciale particulière",
+  '52': "Société en nom collectif",
+  '53': "Société en commandite",
+  '54': "Société à responsabilité limitée (SARL)",
+  '55': "Société anonyme à conseil d'administration",
+  '56': "Société anonyme à directoire",
+  '57': "Société anonyme par actions simplifiées",
+  '58': "Société européenne",
+  '61': "Caisse d'épargne et de prévoyance",
+  '62': "Groupement d'intérêt économique",
+  '63': "Société coopérative agricole",
+  '64': "Société non commerciale d'assurances",
+  '65': "Société civile",
+  '69': "Autres personnes de droit privé inscrites au registre du commerce et des sociétés",
+  '71': "Administration de l'État",
+  '72': "Collectivité territoriale",
+  '73': "Établissement public administratif",
+  '74': "Autre personne morale de droit public administratif",
+  '81': "Organisme gérant un régime de protection sociale à adhésion obligatoire",
+  '82': "Organisme mutualiste",
+  '83': "Comité d'entreprise",
+  '84': "Organisme professionnel",
+  '91': "Syndicat de propriétaires",
+  '92': "Association loi 1901 ou assimilé",
+  '93': "Fondation",
+  '99': "Autre personne morale de droit privé",
+};
+
+/** Libellé d'une catégorie juridique : exact si connu, sinon niveau II. */
+function libelleFormeJuridique(code) {
+  const c = String(code || '').trim();
+  if (!c) return null;
+  if (CJ_NIVEAU_III[c]) return CJ_NIVEAU_III[c];
+  const n2 = CJ_NIVEAU_II[c.slice(0, 2)];
+  return n2 ? `${n2} (code ${c})` : `Catégorie juridique ${c}`;
+}
+
 const JEUX = {
   parcelles: {
     fichier: () => `parcelles-${MILLESIME}.parquet`,
@@ -243,6 +426,7 @@ async function lire(jeu, garde, filtre, limite) {
     (g) => g.min === undefined || g.max === undefined || garde(g));
   const lignes = [];
   let groupesLus = 0;
+  let correspondances = 0;      // toutes les lignes qui correspondent...
   for (const g of retenus) {
     const data = await hp.parquetReadObjects({
       file, compressors, columns: JEUX[jeu].colonnes,
@@ -251,11 +435,21 @@ async function lire(jeu, garde, filtre, limite) {
     groupesLus += 1;
     for (const r of data) {
       if (!filtre(r)) continue;
-      if (lignes.length >= plafond) return { lignes, tronque: true, groupesLus, groupesTotal: groupes.length };
-    lignes.push(ligneSaine(r));
+      correspondances += 1;
+      // ...même au-delà du plafond : on cesse de les RENVOYER, on ne cesse pas
+      // de les COMPTER. Sans quoi un gros bailleur verrait « 20 000 biens »
+      // sans savoir qu'il en détient 45 000 — une troncature muette est un
+      // contresens dans un relevé de patrimoine.
+      if (lignes.length < plafond) lignes.push(ligneSaine(r));
     }
   }
-  return { lignes, tronque: false, groupesLus, groupesTotal: groupes.length };
+  return {
+    lignes,
+    correspondances,
+    tronque: correspondances > lignes.length,
+    groupesLus,
+    groupesTotal: groupes.length,
+  };
 }
 
 /** Recherche par SIREN, dans parcelles ou locaux. */
@@ -371,6 +565,7 @@ function versFrontend(r) {
     codeDroit: r.code_droit,
     denomination: r.denomination,
     formeJuridique: r.forme_juridique,
+    formeJuridiqueLibelle: libelleFormeJuridique(r.forme_juridique),
     numeroSiren: r.numero_siren,
     coordonnees: null,
     // Propre aux locaux
@@ -384,5 +579,5 @@ function versFrontend(r) {
 module.exports = {
   MILLESIME, MAX_LIGNES, AVERTISSEMENT,
   parSiren, parNom, normaliser, agreger, repondre, erreur, ouvrir,
-  versFrontend, DEPARTEMENTS, cors,
+  versFrontend, DEPARTEMENTS, cors, libelleFormeJuridique,
 };
