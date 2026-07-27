@@ -18,6 +18,7 @@
 const F = require('./_fpmu');
 
 module.exports = async function handler(req, res) {
+  F.cors(res);
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'GET') return F.erreur(res, 405, 'Méthode non autorisée');
 
