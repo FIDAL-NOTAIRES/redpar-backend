@@ -26,14 +26,15 @@ module.exports = async function handler(req, res) {
   if (!nom) return F.erreur(res, 400, 'Paramètre nom requis');
 
   try {
-    const { lignes, groupesLus, groupesTotal } =
+    const { lignes, correspondances, groupesLus, groupesTotal } =
       await F.parNom(nom, Number(limite) || 50);
     lignes.sort((a, b) =>
       (Number(b.nb_parcelles || 0) + Number(b.nb_locaux || 0))
       - (Number(a.nb_parcelles || 0) + Number(a.nb_locaux || 0)));
 
     return F.repondre(res, 200, {
-      total: lignes.length,
+      total: correspondances,
+      retournes: lignes.length,
       recherche: { nom, normalise: F.normaliser(nom), mode: 'début de dénomination' },
       results: lignes.map((r) => ({
         numero_siren: r.numero_siren,
