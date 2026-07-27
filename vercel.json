@@ -2,5 +2,10 @@
   "version": 2,
   "rewrites": [
     { "source": "/api/search", "destination": "/api/search" }
-  ]
+  ],
+  "functions": {
+    "api/parcelles.js": { "maxDuration": 60, "memory": 1024 },
+    "api/locaux.js": { "maxDuration": 60, "memory": 1024 },
+    "api/annuaire.js": { "maxDuration": 30, "memory": 1024 }
+  }
 }
