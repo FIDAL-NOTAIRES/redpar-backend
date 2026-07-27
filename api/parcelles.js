@@ -54,11 +54,15 @@ module.exports = async function handler(req, res) {
       };
     }
 
-    const { lignes, tronque, groupesLus, groupesTotal } =
+    const { lignes, correspondances, tronque, groupesLus, groupesTotal } =
       await F.parSiren('parcelles', cible, Number(limite || maxResults) || undefined);
 
     return F.repondre(res, 200, {
-      total: lignes.length,
+      // « total » = nombre réel de correspondances ; « retournes » = ce que
+      // cette réponse contient effectivement. Les deux diffèrent au-delà du
+      // plafond, et l'écart doit être visible.
+      total: correspondances,
+      retournes: lignes.length,
       results: lignes.map((r) => ({
         code_parcelle: r.code_parcelle,
         nom_commune: r.nom_commune,
@@ -81,7 +85,13 @@ module.exports = async function handler(req, res) {
       agregats: F.agreger(lignes, true),
       millesime: F.MILLESIME,
       ...(resolution ? { resolution } : {}),
-      ...(tronque ? { tronque: true, plafond: F.MAX_LIGNES } : {}),
+      ...(tronque ? {
+        tronque: true, plafond: F.MAX_LIGNES,
+        avertissement_troncature: `Relevé tronqué : ${correspondances.toLocaleString('fr-FR')} `
+          + `enregistrements correspondent, ${lignes.length.toLocaleString('fr-FR')} sont renvoyés `
+          + `(plafond FPMU_MAX_LIGNES). Les agrégats ci-dessous ne portent que sur les `
+          + `enregistrements renvoyés.`,
+      } : {}),
       lecture: { groupes_lus: groupesLus, groupes_total: groupesTotal },
       avertissement: F.AVERTISSEMENT,
     });
