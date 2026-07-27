@@ -19,6 +19,7 @@
 const F = require('./_fpmu');
 
 module.exports = async function handler(req, res) {
+  F.cors(res);
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'GET') return F.erreur(res, 405, 'Méthode non autorisée');
 
@@ -72,6 +73,8 @@ module.exports = async function handler(req, res) {
         code_departement: r.code_departement,
         millesime: F.MILLESIME,
       })),
+      locaux: lignes.map(F.versFrontend),
+      truncated: !!tronque,
       agregats: { ...base, nb_lots: lignes.length,
                   nb_immeubles: base.nb_biens_distincts },
       millesime: F.MILLESIME,
