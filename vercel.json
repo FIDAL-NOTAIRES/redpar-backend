@@ -1,12 +1,14 @@
 {
   "version": 2,
   "rewrites": [
-    { "source": "/api/search", "destination": "/api/search" }
+    { "source": "/api/search", "destination": "/api/search" },
+    { "source": "/api/sante", "destination": "/api/sante" }
   ],
   "functions": {
     "api/parcelles.js": { "maxDuration": 60, "memory": 1024 },
     "api/locaux.js": { "maxDuration": 60, "memory": 1024 },
     "api/annuaire.js": { "maxDuration": 30, "memory": 1024 },
-    "api/geo.js": { "maxDuration": 60, "memory": 1024 }
+    "api/geo.js": { "maxDuration": 60, "memory": 1024 },
+    "api/sante.js": { "maxDuration": 30, "memory": 1024 }
   }
 }
