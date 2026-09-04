@@ -337,7 +337,26 @@ const JEUX = {
     // L'annuaire est trié par dénomination normalisée, pas par SIREN.
     cleTri: 'denomination_norm',
   },
+  // INDEX INVERSE — ajouté le 03/09/2026 (addendum REDPAR v11, § 5 d).
+  // Mêmes lignes que « parcelles », TRIÉES PAR code_parcelle : il répond à
+  // « qui détient cette parcelle ? », question que le tri par SIREN ne permet
+  // pas sans tout lire. Le code commençant par l'INSEE, toute une commune est
+  // un bloc contigu du fichier — un groupe de lignes sert tout un dossier.
+  // Usage : parcelle d'assiette d'un lot de copropriété → son syndicat
+  // (groupe_personne 7) → ses parcelles → l'assiette entière.
+  proprietaires: {
+    fichier: () => `proprietaires-${MILLESIME}.parquet`,
+    colonnes: ['code_parcelle', 'code_insee', 'code_departement', 'nom_commune',
+      'adresse', 'contenance', 'numero_siren', 'numero_majic',
+      'groupe_personne', 'code_droit', 'denomination', 'forme_juridique'],
+    cleTri: 'code_parcelle',
+  },
 };
+
+// Colonnes ajoutées au millésime 2026 dans parcelles et locaux. Elles sont
+// demandées SI le fichier les porte (voir colonnesPresentes) : le même code
+// sert les releases 2025 (sans) et 2026 (avec).
+const COLONNES_OPTIONNELLES = ['numero_majic', 'groupe_personne'];
 
 // --------------------------------------------------------------------------
 // Chargement paresseux des modules ESM depuis un fichier CommonJS, et cache
@@ -372,6 +391,15 @@ async function ouvrir(jeu) {
     const pos = meta.row_groups[0].columns
       .findIndex((c) => c.meta_data.path_in_schema.join('.') === cle);
     if (pos < 0) throw new Error(`colonne de tri « ${cle} » absente de ${url}`);
+    // Colonnes RÉELLEMENT présentes : demander à hyparquet une colonne absente
+    // du schéma ferait échouer la lecture. On intersecte donc la liste voulue
+    // avec le schéma lu, ce qui permet d'ajouter des colonnes d'un millésime à
+    // l'autre sans casser la lecture des releases antérieures.
+    const presentes = new Set(meta.row_groups[0].columns
+      .map((c) => c.meta_data.path_in_schema.join('.')));
+    const voulues = [...JEUX[jeu].colonnes,
+      ...(jeu === 'proprietaires' ? [] : COLONNES_OPTIONNELLES)];
+    const colonnes = voulues.filter((c) => presentes.has(c));
     let debut = 0;
     const groupes = meta.row_groups.map((rg) => {
       const n = Number(rg.num_rows);
@@ -380,7 +408,7 @@ async function ouvrir(jeu) {
       debut += n;
       return g;
     });
-    return { file, meta, groupes, total: Number(meta.num_rows), url };
+    return { file, meta, groupes, colonnes, total: Number(meta.num_rows), url };
   })();
   cache.set(jeu, promesse);
   try {
@@ -419,7 +447,7 @@ function ligneSaine(r) {
  * @param {(r:object)=>boolean} filtre
  */
 async function lire(jeu, garde, filtre, limite) {
-  const { file, groupes } = await ouvrir(jeu);
+  const { file, groupes, colonnes } = await ouvrir(jeu);
   const { hp, compressors } = await charger();
   const plafond = Math.min(limite || MAX_LIGNES, MAX_LIGNES);
   const retenus = groupes.filter(
@@ -429,7 +457,7 @@ async function lire(jeu, garde, filtre, limite) {
   let correspondances = 0;      // toutes les lignes qui correspondent...
   for (const g of retenus) {
     const data = await hp.parquetReadObjects({
-      file, compressors, columns: JEUX[jeu].colonnes,
+      file, compressors, columns: colonnes,
       rowStart: g.debut, rowEnd: g.fin,
     });
     groupesLus += 1;
@@ -457,6 +485,24 @@ async function parSiren(jeu, siren, limite) {
   const s = String(siren).trim().toUpperCase();
   return lire(jeu, (g) => g.min <= s && s <= g.max,
     (r) => r.numero_siren === s, limite);
+}
+
+/**
+ * Recherche INVERSE : les titulaires de droits d'un ensemble de parcelles.
+ * @param {string[]} codes  références à 14 caractères
+ * Élagage : un groupe est lu s'il chevauche l'intervalle [min, max] des codes
+ * demandés — les codes d'un même dossier sont voisins dans le tri, le plus
+ * souvent dans un seul groupe. Le filtre exact est fait sur l'ensemble.
+ */
+async function parParcelles(codes, limite) {
+  const ens = new Set((codes || []).map((c) => String(c).trim().toUpperCase())
+    .filter((c) => c.length === 14));
+  if (!ens.size) return { lignes: [], correspondances: 0, tronque: false, groupesLus: 0, groupesTotal: 0 };
+  const tries = [...ens].sort();
+  const bas = tries[0], haut = tries[tries.length - 1];
+  return lire('proprietaires',
+    (g) => !(g.max < bas || g.min > haut) && tries.some((c) => g.min <= c && c <= g.max),
+    (r) => ens.has(r.code_parcelle), limite);
 }
 
 /**
@@ -567,6 +613,9 @@ function versFrontend(r) {
     formeJuridique: r.forme_juridique,
     formeJuridiqueLibelle: libelleFormeJuridique(r.forme_juridique),
     numeroSiren: r.numero_siren,
+    // Présents à partir du millésime 2026 (absents = undefined, jamais inventés).
+    numeroMajic: r.numero_majic,
+    groupePersonne: r.groupe_personne,
     coordonnees: null,
     // Propre aux locaux
     batiment: r.batiment,
@@ -578,6 +627,6 @@ function versFrontend(r) {
 
 module.exports = {
   MILLESIME, MAX_LIGNES, AVERTISSEMENT,
-  parSiren, parNom, normaliser, agreger, repondre, erreur, ouvrir,
+  parSiren, parNom, parParcelles, normaliser, agreger, repondre, erreur, ouvrir,
   versFrontend, DEPARTEMENTS, cors, libelleFormeJuridique,
 };
