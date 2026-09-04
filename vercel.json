@@ -1,15 +1,45 @@
+
+Vercel · JSON
 {
   "version": 2,
-  "regions": ["cdg1"],
+  "regions": [
+    "cdg1"
+  ],
   "rewrites": [
-    { "source": "/api/search", "destination": "/api/search" },
-    { "source": "/api/sante", "destination": "/api/sante" }
+    {
+      "source": "/api/search",
+      "destination": "/api/search"
+    },
+    {
+      "source": "/api/sante",
+      "destination": "/api/sante"
+    }
   ],
   "functions": {
-    "api/parcelles.js": { "maxDuration": 60, "memory": 1024 },
-    "api/locaux.js": { "maxDuration": 60, "memory": 1024 },
-    "api/annuaire.js": { "maxDuration": 30, "memory": 1024 },
-    "api/sante.js": { "maxDuration": 30, "memory": 1024 },
-    "api/geo.js": { "maxDuration": 60, "memory": 1024 }
+    "api/parcelles.js": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "api/locaux.js": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "api/annuaire.js": {
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "api/sante.js": {
+      "maxDuration": 30,
+      "memory": 1024
+    },
+    "api/geo.js": {
+      "maxDuration": 60,
+      "memory": 1024
+    },
+    "api/proprietaires.js": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
   }
 }
+
